@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 import {
   ChevronLeft,
@@ -110,28 +110,25 @@ export default function App() {
     data_termino: '',
     observacao: '',
   });
+
   const [isEquipaModalOpen, setIsEquipaModalOpen] = useState(false);
   const [novoColaborador, setNovoColaborador] = useState('');
+  const [novaEquipe, setNovaEquipe] = useState('Gestão de Contrato'); // <-- Atualizado aqui
 
   useEffect(() => {
     carregarDados();
 
-    // ESCUTADOR DE TEMPO REAL: Atualiza a tela de todos se houver qualquer mudança
     const subscription = supabase
       .channel('mudancas-db')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'ferias' },
-        () => {
-          carregarDados();
-        }
+        () => carregarDados()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'colaboradores' },
-        () => {
-          carregarDados();
-        }
+        () => carregarDados()
       )
       .subscribe();
 
@@ -144,6 +141,7 @@ export default function App() {
     const resColab = await supabase
       .from('colaboradores')
       .select('*')
+      .order('equipe')
       .order('nome_completo');
     if (resColab.data) setColaboradores(resColab.data);
 
@@ -155,7 +153,6 @@ export default function App() {
   const ano = dataAtual.getFullYear();
   const diasNoMes = new Date(ano, mes + 1, 0).getDate();
   const dias = Array.from({ length: diasNoMes }, (_, i) => i + 1);
-
   const mesesNomes = [
     'Janeiro',
     'Fevereiro',
@@ -196,7 +193,6 @@ export default function App() {
   function mudarMes(delta: number) {
     setDataAtual(new Date(ano, mes + delta, 1));
   }
-
   function voltarParaHoje() {
     setDataAtual(new Date());
   }
@@ -207,7 +203,6 @@ export default function App() {
         f.data_inicio.startsWith(ano.toString()) ||
         f.data_termino.startsWith(ano.toString())
     );
-
     function formatarDataBR(dataString: string) {
       const [y, m, d] = dataString.split('-');
       return `${d}/${m}/${y}`;
@@ -216,6 +211,7 @@ export default function App() {
     const dados = feriasDoAno.map((f) => {
       const colab = colaboradores.find((c) => c.id === f.colaborador_id);
       return {
+        Equipe: colab ? colab.equipe || 'Outros' : 'Desconhecido',
         Colaborador: colab ? colab.nome_completo : 'Desconhecido',
         'Data de Início': formatarDataBR(f.data_inicio),
         'Data de Término': formatarDataBR(f.data_termino),
@@ -223,12 +219,21 @@ export default function App() {
       };
     });
 
-    dados.sort((a, b) => a.Colaborador.localeCompare(b.Colaborador));
+    dados.sort((a, b) => {
+      if (a.Equipe !== b.Equipe) return a.Equipe.localeCompare(b.Equipe);
+      return a.Colaborador.localeCompare(b.Colaborador);
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, `Férias ${ano}`);
-    worksheet['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 40 }];
+    worksheet['!cols'] = [
+      { wch: 25 },
+      { wch: 35 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 40 },
+    ];
     XLSX.writeFile(workbook, `Programacao_Ferias_Unimed_${ano}.xlsx`);
   }
 
@@ -250,10 +255,9 @@ export default function App() {
 
   async function salvarFerias(e: React.FormEvent) {
     e.preventDefault();
-    if (formData.data_inicio > formData.data_termino) {
-      alert('A data de término não pode ser antes da data de início!');
-      return;
-    }
+    if (formData.data_inicio > formData.data_termino)
+      return alert('A data de término não pode ser antes da data de início!');
+
     if (formData.id) {
       await supabase
         .from('ferias')
@@ -289,19 +293,26 @@ export default function App() {
     if (!novoColaborador.trim()) return;
     await supabase
       .from('colaboradores')
-      .insert([{ nome_completo: novoColaborador.trim() }]);
+      .insert([{ nome_completo: novoColaborador.trim(), equipe: novaEquipe }]);
     setNovoColaborador('');
   }
 
   async function excluirColaborador(id: string, nome: string) {
     if (
       confirm(
-        `Tem a certeza que deseja excluir ${nome}? ATENÇÃO: Todas as férias desta pessoa também serão eliminadas permanentemente.`
+        `Tem a certeza que deseja excluir ${nome}? ATENÇÃO: Todas as férias desta pessoa também serão eliminadas.`
       )
     ) {
       await supabase.from('colaboradores').delete().eq('id', id);
     }
   }
+
+  const colaboradoresPorEquipe = colaboradores.reduce((acc, colab) => {
+    const eq = colab.equipe || 'Outros';
+    if (!acc[eq]) acc[eq] = [];
+    acc[eq].push(colab);
+    return acc;
+  }, {} as Record<string, any[]>);
 
   return (
     <div className="container">
@@ -319,7 +330,6 @@ export default function App() {
           <button className="btn" onClick={() => mudarMes(-1)}>
             <ChevronLeft size={18} /> Anterior
           </button>
-
           <div
             style={{
               display: 'flex',
@@ -353,7 +363,6 @@ export default function App() {
               Ir para Hoje
             </button>
           </div>
-
           <button className="btn" onClick={() => mudarMes(1)}>
             Próximo <ChevronRight size={18} />
           </button>
@@ -404,42 +413,75 @@ export default function App() {
             </tr>
           </thead>
           <tbody>
-            {colaboradores.map((colab) => (
-              <tr key={colab.id}>
-                <td className="colab-name">{colab.nome_completo}</td>
-                {dias.map((dia) => {
-                  const periodo = getFeriasDoDia(colab.id, dia);
-                  const dataVerificada = `${ano}-${String(mes + 1).padStart(
-                    2,
-                    '0'
-                  )}-${String(dia).padStart(2, '0')}`;
-                  const isFimDeSemana =
-                    new Date(ano, mes, dia).getDay() === 0 ||
-                    new Date(ano, mes, dia).getDay() === 6;
-                  const isFeriado = feriadosNacionais.includes(dataVerificada);
-
-                  let cssClass = isHoje(dia) ? 'today-cell ' : '';
-                  if (periodo) cssClass += 'ferias-cell';
-                  else if (isFeriado) cssClass += 'holiday-cell';
-                  else if (isFimDeSemana) cssClass += 'weekend-cell';
-
-                  return (
+            {Object.keys(colaboradoresPorEquipe)
+              .sort()
+              .map((equipe) => (
+                <React.Fragment key={equipe}>
+                  <tr>
                     <td
-                      key={dia}
-                      className={cssClass}
-                      title={
-                        periodo
-                          ? 'Férias - Clique para editar'
-                          : isFeriado
-                          ? 'Feriado'
-                          : ''
-                      }
-                      onClick={() => (periodo ? abrirEdicao(periodo) : null)}
+                      className="colab-name"
+                      style={{
+                        backgroundColor: '#e2e8f0',
+                        borderTop: '3px solid var(--unimed-blue)',
+                        borderBottom: '1px solid #cbd5e1',
+                        paddingTop: '10px',
+                        paddingBottom: '10px',
+                        zIndex: 15,
+                      }}
+                    >
+                      {equipe}
+                    </td>
+                    <td
+                      colSpan={dias.length}
+                      style={{
+                        backgroundColor: '#e2e8f0',
+                        borderTop: '3px solid var(--unimed-blue)',
+                        borderBottom: '1px solid #cbd5e1',
+                      }}
                     ></td>
-                  );
-                })}
-              </tr>
-            ))}
+                  </tr>
+
+                  {colaboradoresPorEquipe[equipe].map((colab) => (
+                    <tr key={colab.id}>
+                      <td className="colab-name">{colab.nome_completo}</td>
+                      {dias.map((dia) => {
+                        const periodo = getFeriasDoDia(colab.id, dia);
+                        const dataVerificada = `${ano}-${String(
+                          mes + 1
+                        ).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                        const isFimDeSemana =
+                          new Date(ano, mes, dia).getDay() === 0 ||
+                          new Date(ano, mes, dia).getDay() === 6;
+                        const isFeriado =
+                          feriadosNacionais.includes(dataVerificada);
+
+                        let cssClass = isHoje(dia) ? 'today-cell ' : '';
+                        if (periodo) cssClass += 'ferias-cell';
+                        else if (isFeriado) cssClass += 'holiday-cell';
+                        else if (isFimDeSemana) cssClass += 'weekend-cell';
+
+                        return (
+                          <td
+                            key={dia}
+                            className={cssClass}
+                            title={
+                              periodo
+                                ? 'Férias - Clique para editar'
+                                : isFeriado
+                                ? 'Feriado'
+                                : ''
+                            }
+                            onClick={() =>
+                              periodo ? abrirEdicao(periodo) : null
+                            }
+                          ></td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))}
+
             {colaboradores.length === 0 && (
               <tr>
                 <td
@@ -454,7 +496,6 @@ export default function App() {
         </table>
       </div>
 
-      {/* JANELA: GERIR FÉRIAS */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -482,7 +523,7 @@ export default function App() {
                 >
                   {colaboradores.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.nome_completo}
+                      {c.nome_completo} - {c.equipe}
                     </option>
                   ))}
                 </select>
@@ -553,10 +594,9 @@ export default function App() {
         </div>
       )}
 
-      {/* JANELA: GERIR COLABORADORES */}
       {isEquipaModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '500px' }}>
+          <div className="modal-content" style={{ maxWidth: '550px' }}>
             <div className="modal-header">
               <h3 className="modal-title">Gerir Colaboradores</h3>
               <button
@@ -574,11 +614,22 @@ export default function App() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Nome do novo colaborador"
+                placeholder="Nome do colaborador"
                 value={novoColaborador}
                 onChange={(e) => setNovoColaborador(e.target.value)}
                 required
               />
+              {/* SELETOR DE EQUIPA ATUALIZADO */}
+              <select
+                className="form-control"
+                value={novaEquipe}
+                onChange={(e) => setNovaEquipe(e.target.value)}
+                style={{ width: '180px' }}
+              >
+                <option value="Gestão de Contrato">Gestão de Contrato</option>
+                <option value="Novos Negócios">Novos Negócios</option>
+                <option value="Gestão">Gestão</option>
+              </select>
               <button
                 type="submit"
                 className="btn btn-primary"
@@ -611,6 +662,15 @@ export default function App() {
                         }}
                       >
                         {c.nome_completo}
+                        <div
+                          style={{
+                            fontSize: '11px',
+                            color: '#64748b',
+                            marginTop: '2px',
+                          }}
+                        >
+                          {c.equipe}
+                        </div>
                       </td>
                       <td
                         style={{
