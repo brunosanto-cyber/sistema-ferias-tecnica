@@ -1,0 +1,180 @@
+:root {
+  --unimed-blue: #002d5d;  
+  --unimed-green: #00995d; 
+}
+
+body { 
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; 
+  background-color: #f8fafc; 
+  margin: 0; 
+  padding: 20px; 
+  color: #334155;
+}
+
+.container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  background: white; 
+  padding: 30px; 
+  border-radius: 12px; 
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
+}
+
+.header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--unimed-blue);
+  font-weight: 700;
+}
+
+.nav-mes {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn { 
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px; 
+  cursor: pointer; 
+  border: 1px solid #cbd5e1; 
+  background: #fff; 
+  border-radius: 6px; 
+  font-weight: 500;
+  color: var(--unimed-blue);
+  transition: all 0.2s;
+}
+
+.btn:hover { background: #f1f5f9; }
+
+.btn-primary { 
+  background: var(--unimed-green); 
+  color: white; 
+  border: none; 
+}
+.btn-primary:hover { background: #00824e; }
+
+.btn-danger {
+  background: #ef4444; 
+  color: white; 
+  border: none;
+}
+.btn-danger:hover { background: #dc2626; }
+
+.tabela-container { 
+  overflow-x: auto; 
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.calendar-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+.calendar-table th, .calendar-table td { 
+  border-right: 1px solid #e2e8f0; 
+  border-bottom: 1px solid #e2e8f0;
+  padding: 6px 2px; 
+  text-align: center; 
+  font-size: 13px;
+  min-width: 35px;
+}
+
+.calendar-table th { 
+  background: var(--unimed-blue); 
+  font-weight: 600;
+  color: white;
+}
+
+.colab-name { 
+  text-align: left !important; 
+  font-weight: 600; 
+  min-width: 220px; 
+  padding-left: 16px !important;
+  position: sticky;
+  left: 0;
+  background: white;
+  color: var(--unimed-blue);
+  z-index: 10;
+  white-space: nowrap; 
+}
+
+th.colab-name {
+  background: var(--unimed-blue);
+  color: white;
+  z-index: 20;
+}
+
+.ferias-cell { 
+  background-color: var(--unimed-green) !important; 
+  color: transparent !important; 
+  cursor: pointer;
+  transition: opacity 0.2s;
+  border-radius: 2px;
+}
+.ferias-cell:hover { opacity: 0.8; }
+
+.weekend-cell {
+  background-color: #f1f5f9;
+}
+
+.holiday-cell {
+  background-color: #fef08a;
+}
+
+/* --- DESTAQUE PARA O DIA DE HOJE --- */
+.today-header {
+  background-color: #bae6fd !important; /* Azul celeste suave */
+  color: var(--unimed-blue) !important;
+  border-bottom: 3px solid var(--unimed-blue) !important;
+}
+
+.today-cell {
+  background-color: #e0f2fe; /* Fundo azul bem suave para a coluna toda */
+}
+
+/* Modal */
+.modal-overlay { 
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+  background: rgba(0, 45, 93, 0.6); 
+  display: flex; align-items: center; justify-content: center; 
+  z-index: 1000; 
+}
+
+.modal-content { 
+  background: white; padding: 24px; border-radius: 12px; 
+  width: 100%; max-width: 450px; 
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
+}
+
+.modal-header { 
+  display: flex; justify-content: space-between; align-items: center; 
+  margin-bottom: 20px; 
+}
+
+.modal-title { margin: 0; font-size: 1.25rem; color: var(--unimed-blue); }
+
+.close-btn { background: none; border: none; cursor: pointer; color: #94a3b8; }
+.close-btn:hover { color: #334155; }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: var(--unimed-blue); }
+.form-control { 
+  width: 100%; padding: 10px; border: 1px solid #cbd5e1; 
+  border-radius: 6px; box-sizing: border-box; font-family: inherit;
+}
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.actions-left { flex-grow: 1; }
