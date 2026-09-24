@@ -32,7 +32,7 @@ export default function App() {
   
   const [isEquipaModalOpen, setIsEquipaModalOpen] = useState(false);
   const [novoColaborador, setNovoColaborador] = useState('');
-  const [novaEquipe, setNovaEquipe] = useState('Gestão de Contrato'); // Valor inicial corrigido
+  const [novaEquipe, setNovaEquipe] = useState('Gestão'); // Inicia com o primeiro da lista
 
   useEffect(() => {
     carregarDados();
@@ -47,7 +47,7 @@ export default function App() {
   }, []);
 
   async function carregarDados() {
-    const resColab = await supabase.from('colaboradores').select('*').order('equipe').order('nome_completo');
+    const resColab = await supabase.from('colaboradores').select('*').order('nome_completo');
     if (resColab.data) setColaboradores(resColab.data);
 
     const resFerias = await supabase.from('ferias').select('*');
@@ -95,8 +95,16 @@ export default function App() {
       };
     });
 
+    // Ordenação forçada no Excel para corresponder à tela
     dados.sort((a, b) => {
-      if(a.Equipe !== b.Equipe) return a.Equipe.localeCompare(b.Equipe);
+      if(a.Equipe !== b.Equipe) {
+        const ordem = ['Gestão', 'Gestão Técnica de Contratos', 'Novos Negócios'];
+        let posA = ordem.indexOf(a.Equipe);
+        let posB = ordem.indexOf(b.Equipe);
+        if (posA === -1) posA = 999;
+        if (posB === -1) posB = 999;
+        return posA - posB;
+      }
       return a.Colaborador.localeCompare(b.Colaborador);
     });
 
@@ -153,12 +161,24 @@ export default function App() {
     }
   }
 
+  // Agrupa os colaboradores por equipa
   const colaboradoresPorEquipe = colaboradores.reduce((acc, colab) => {
     const eq = colab.equipe || 'Outros';
     if (!acc[eq]) acc[eq] = [];
     acc[eq].push(colab);
     return acc;
   }, {} as Record<string, any[]>);
+
+  // AQUI DEFINIMOS A ORDEM EXATA QUE QUEREMOS NA TELA (Ignora a ordem alfabética)
+  const ordemDesejada = ['Gestão', 'Gestão Técnica de Contratos', 'Novos Negócios'];
+  
+  const equipesOrdenadas = Object.keys(colaboradoresPorEquipe).sort((a, b) => {
+    let posA = ordemDesejada.indexOf(a);
+    let posB = ordemDesejada.indexOf(b);
+    if (posA === -1) posA = 999; // Se houver uma equipe nova não listada, vai para o final
+    if (posB === -1) posB = 999;
+    return posA - posB;
+  });
 
   return (
     <div className="container">
@@ -213,7 +233,7 @@ export default function App() {
             </tr>
           </thead>
           <tbody>
-            {Object.keys(colaboradoresPorEquipe).sort().map(equipe => (
+            {equipesOrdenadas.map(equipe => (
               <React.Fragment key={equipe}>
                 
                 <tr>
@@ -313,11 +333,11 @@ export default function App() {
                 onChange={e => setNovoColaborador(e.target.value)}
                 required
               />
-              {/* SELETOR DE EQUIPA CORRIGIDO */}
+              {/* AS OPÇÕES DE ESCOLHA AGORA TÊM A ORDEM EXATA QUE PEDIU */}
               <select className="form-control" value={novaEquipe} onChange={e => setNovaEquipe(e.target.value)} style={{ width: '220px' }}>
-                <option value="Gestão de Contrato">Gestão de Contrato</option>
-                <option value="Novos Negócios">Novos Negócios</option>
+                <option value="Gestão">Gestão</option>
                 <option value="Gestão Técnica de Contratos">Gestão Técnica de Contratos</option>
+                <option value="Novos Negócios">Novos Negócios</option>
               </select>
               <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
                 <UserPlus size={18} /> Adicionar
