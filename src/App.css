@@ -7,15 +7,15 @@ body {
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; 
   background-color: #f8fafc; 
   margin: 0; 
-  padding: 20px; 
+  padding: 15px; 
   color: #334155;
 }
 
 .container { 
-  max-width: 1200px; 
+  max-width: 98%; /* AQUI ESTÁ O SEGREDO: expande para quase toda a largura do ecrã */
   margin: 0 auto; 
   background: white; 
-  padding: 30px; 
+  padding: 25px; 
   border-radius: 12px; 
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
 }
@@ -80,16 +80,16 @@ body {
 
 .calendar-table { 
   width: 100%; 
-  border-collapse: collapse; 
+  border-collapse: collapse;
+  table-layout: fixed; /* Força a tabela a espremer as colunas de forma igual */
 }
 
 .calendar-table th, .calendar-table td { 
   border-right: 1px solid #e2e8f0; 
   border-bottom: 1px solid #e2e8f0;
-  padding: 6px 2px; 
+  padding: 6px 1px; /* Espaço lateral menor para caber melhor */
   text-align: center; 
-  font-size: 13px;
-  min-width: 35px;
+  font-size: 12px; /* Letra dos dias ligeiramente mais pequena */
 }
 
 .calendar-table th { 
@@ -101,14 +101,16 @@ body {
 .colab-name { 
   text-align: left !important; 
   font-weight: 600; 
-  min-width: 220px; 
-  padding-left: 16px !important;
+  width: 220px; /* Largura fixa para a coluna dos nomes */
+  padding-left: 12px !important;
   position: sticky;
   left: 0;
   background: white;
   color: var(--unimed-blue);
   z-index: 10;
   white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; /* Se o nome for gigante, adiciona '...' no final */
 }
 
 th.colab-name {
@@ -134,15 +136,14 @@ th.colab-name {
   background-color: #fef08a;
 }
 
-/* --- DESTAQUE PARA O DIA DE HOJE --- */
 .today-header {
-  background-color: #bae6fd !important; /* Azul celeste suave */
+  background-color: #bae6fd !important; 
   color: var(--unimed-blue) !important;
   border-bottom: 3px solid var(--unimed-blue) !important;
 }
 
 .today-cell {
-  background-color: #e0f2fe; /* Fundo azul bem suave para a coluna toda */
+  background-color: #e0f2fe; 
 }
 
 /* Modal */
