@@ -32,7 +32,7 @@ export default function App() {
   
   const [isEquipaModalOpen, setIsEquipaModalOpen] = useState(false);
   const [novoColaborador, setNovoColaborador] = useState('');
-  const [novaEquipe, setNovaEquipe] = useState('Gestão Técnica de Contratos'); // <-- Atualizado aqui
+  const [novaEquipe, setNovaEquipe] = useState('Gestão de Contrato'); // Valor inicial corrigido
 
   useEffect(() => {
     carregarDados();
@@ -313,11 +313,11 @@ export default function App() {
                 onChange={e => setNovoColaborador(e.target.value)}
                 required
               />
-              {/* SELETOR DE EQUIPA ATUALIZADO */}
+              {/* SELETOR DE EQUIPA CORRIGIDO */}
               <select className="form-control" value={novaEquipe} onChange={e => setNovaEquipe(e.target.value)} style={{ width: '220px' }}>
                 <option value="Gestão de Contrato">Gestão de Contrato</option>
+                <option value="Novos Negócios">Novos Negócios</option>
                 <option value="Gestão Técnica de Contratos">Gestão Técnica de Contratos</option>
-                <option value="Gestão">Gestão</option>
               </select>
               <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
                 <UserPlus size={18} /> Adicionar
