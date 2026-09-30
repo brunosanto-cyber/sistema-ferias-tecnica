@@ -3,10 +3,19 @@
   --unimed-green: #00995d; 
 }
 
-/* 1. RESET TOTAL: Sem qualquer margem ou espaço exterior */
+/* 1. DESTRÓI O LIMITE INVISÍVEL DO SISTEMA BASE */
+#root {
+  width: 100%;
+  height: 100%;
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex;
+}
+
 html, body {
   margin: 0;
-  padding: 0; /* <-- O grande vilão das margens laterais foi removido aqui! */
+  padding: 0; 
   width: 100%;
   height: 100vh;
   overflow: hidden; 
@@ -20,19 +29,19 @@ body {
   display: flex; 
 }
 
-/* 2. CONTAINER PRINCIPAL: Agora é a própria tela, não um cartão flutuante */
+/* 2. CONTAINER: Preenche tudo e adiciona espaço no fundo para levantar o último nome */
 .container { 
   flex: 1; 
   width: 100%;
   max-width: 100%; 
   margin: 0; 
-  padding: 20px 20px 0 20px; /* Dá espaço apenas por dentro para o texto não colar no vidro da tela */
+  /* Os 30px no final levantam a tabela do fundo do monitor! */
+  padding: 20px 20px 30px 20px; 
   background: white; 
   display: flex;          
   flex-direction: column; 
   box-sizing: border-box;
   min-height: 0; 
-  /* Removemos o box-shadow e border-radius que criavam a linha lateral */
 }
 
 .header { 
