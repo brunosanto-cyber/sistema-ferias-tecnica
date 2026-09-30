@@ -12,7 +12,7 @@ body {
 }
 
 .container { 
-  max-width: 98%; /* AQUI ESTÁ O SEGREDO: expande para quase toda a largura do ecrã */
+  max-width: 98%; 
   margin: 0 auto; 
   background: white; 
   padding: 25px; 
@@ -65,6 +65,14 @@ body {
 }
 .btn-primary:hover { background: #00824e; }
 
+/* NOVO BOTÃO SECUNDÁRIO PARA O DAY OFF */
+.btn-secondary { 
+  background: var(--unimed-blue); 
+  color: white; 
+  border: none; 
+}
+.btn-secondary:hover { background: #001f40; }
+
 .btn-danger {
   background: #ef4444; 
   color: white; 
@@ -81,15 +89,15 @@ body {
 .calendar-table { 
   width: 100%; 
   border-collapse: collapse;
-  table-layout: fixed; /* Força a tabela a espremer as colunas de forma igual */
+  table-layout: fixed; 
 }
 
 .calendar-table th, .calendar-table td { 
   border-right: 1px solid #e2e8f0; 
   border-bottom: 1px solid #e2e8f0;
-  padding: 6px 1px; /* Espaço lateral menor para caber melhor */
+  padding: 6px 1px; 
   text-align: center; 
-  font-size: 12px; /* Letra dos dias ligeiramente mais pequena */
+  font-size: 12px; 
 }
 
 .calendar-table th { 
@@ -101,7 +109,7 @@ body {
 .colab-name { 
   text-align: left !important; 
   font-weight: 600; 
-  width: 220px; /* Largura fixa para a coluna dos nomes */
+  width: 220px; 
   padding-left: 12px !important;
   position: sticky;
   left: 0;
@@ -110,7 +118,7 @@ body {
   z-index: 10;
   white-space: nowrap; 
   overflow: hidden;
-  text-overflow: ellipsis; /* Se o nome for gigante, adiciona '...' no final */
+  text-overflow: ellipsis; 
 }
 
 th.colab-name {
@@ -128,13 +136,18 @@ th.colab-name {
 }
 .ferias-cell:hover { opacity: 0.8; }
 
-.weekend-cell {
-  background-color: #f1f5f9;
+/* NOVA COR PARA O DAY OFF (Laranja vibrante) */
+.dayoff-cell { 
+  background-color: #f97316 !important; 
+  color: transparent !important; 
+  cursor: pointer;
+  transition: opacity 0.2s;
+  border-radius: 2px;
 }
+.dayoff-cell:hover { opacity: 0.8; }
 
-.holiday-cell {
-  background-color: #fef08a;
-}
+.weekend-cell { background-color: #f1f5f9; }
+.holiday-cell { background-color: #fef08a; }
 
 .today-header {
   background-color: #bae6fd !important; 
@@ -142,9 +155,7 @@ th.colab-name {
   border-bottom: 3px solid var(--unimed-blue) !important;
 }
 
-.today-cell {
-  background-color: #e0f2fe; 
-}
+.today-cell { background-color: #e0f2fe; }
 
 /* Modal */
 .modal-overlay { 
@@ -160,11 +171,7 @@ th.colab-name {
   box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
 }
 
-.modal-header { 
-  display: flex; justify-content: space-between; align-items: center; 
-  margin-bottom: 20px; 
-}
-
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .modal-title { margin: 0; font-size: 1.25rem; color: var(--unimed-blue); }
 
 .close-btn { background: none; border: none; cursor: pointer; color: #94a3b8; }
