@@ -3,43 +3,41 @@
   --unimed-green: #00995d; 
 }
 
-/* 1. RESET COMPLETO: Garante que a tela ocupa 100% sem sobras nem barras laterais */
+/* 1. RESET TOTAL: Remove qualquer margem cinzenta e fixa a tela em 100% reais */
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  overflow: hidden; /* Trava a rolagem geral da página */
+  height: 100vh;
+  overflow: hidden; /* Trava a rolagem geral */
+  box-sizing: border-box;
 }
 
 body { 
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; 
-  background-color: #f8fafc; 
+  background-color: #ffffff; /* Fundo totalmente branco */
   color: #334155;
-  box-sizing: border-box;
-  padding: 15px; /* Espaço em volta do quadro branco */
-  display: flex; /* Permite que o container interior estique 100% */
+  display: flex; /* Prepara o corpo para esticar o conteúdo */
 }
 
 .container { 
-  flex: 1; /* OBRIGATÓRIO: Faz o quadro branco preencher toda a tela */
-  max-width: 98%; 
-  margin: 0 auto; 
+  flex: 1; /* Faz o sistema preencher 100% da largura e altura */
+  max-width: 100%; 
+  margin: 0; 
+  padding: 25px; /* Espaço de respiro apenas por dentro */
   background: white; 
-  padding: 25px 25px 0 25px; 
-  border-radius: 12px; 
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
   display: flex;          
   flex-direction: column; 
-  min-height: 0; /* OBRIGATÓRIO: Permite que a tabela dentro dele crie barra de rolagem */
+  box-sizing: border-box;
+  min-height: 0; /* Garante que o corte no fundo não acontece */
 }
 
 .header { 
-  flex-shrink: 0; /* OBRIGATÓRIO: Mantém o cabeçalho sempre fixo e com o mesmo tamanho */
+  flex-shrink: 0; 
   display: flex; 
   flex-direction: column;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .header-top {
@@ -80,13 +78,13 @@ body {
 .btn-danger { background: #ef4444; color: white; border: none; }
 .btn-danger:hover { background: #dc2626; }
 
+/* 2. TABELA: Agora com o limite de fundo correto */
 .tabela-container { 
-  flex: 1; /* OBRIGATÓRIO: Faz a tabela ocupar todo o resto do ecrã disponível */
+  flex: 1; 
   min-height: 0; 
-  overflow: auto; /* A BARRA DE ROLAGEM VAI APARECER AQUI DENTRO */
+  overflow: auto; 
   border: 1px solid #e2e8f0;
-  border-bottom: none; 
-  border-radius: 8px 8px 0 0;
+  border-radius: 8px; /* Borda completa para fechar a caixa com elegância */
 }
 
 .calendar-table { 
@@ -108,7 +106,7 @@ body {
   background: var(--unimed-blue); 
   font-weight: 600;
   color: white;
-  position: sticky; /* Mantém a linha dos dias presa no topo */
+  position: sticky; 
   top: 0;
   z-index: 30; 
 }
@@ -118,7 +116,7 @@ body {
   font-weight: 600; 
   width: 220px; 
   padding-left: 12px !important;
-  position: sticky; /* Mantém os nomes presos à esquerda */
+  position: sticky; 
   left: 0;
   background: white;
   color: var(--unimed-blue);
