@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabase';
-import { ChevronLeft, ChevronRight, Plus, X, Trash2, Save, Users, UserPlus, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, X, Trash2, Save, Users, UserPlus, Download, Coffee } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import './App.css';
 
@@ -14,9 +14,6 @@ const feriadosNacionais = [
   '2028-01-01', '2028-02-28', '2028-02-29', '2028-03-01', '2028-04-14', 
   '2028-04-21', '2028-05-01', '2028-06-15', '2028-09-07', '2028-10-12', 
   '2028-11-02', '2028-11-15', '2028-11-20', '2028-12-24', '2028-12-25', '2028-12-31',
-  '2029-01-01', '2029-02-12', '2029-02-13', '2029-02-14', '2029-03-30', 
-  '2029-04-21', '2029-05-01', '2029-05-31', '2029-09-07', '2029-10-12', 
-  '2029-11-02', '2029-11-15', '2029-11-20', '2029-12-24', '2029-12-25', '2029-12-31',
   '2030-01-01', '2030-03-04', '2030-03-05', '2030-03-06', '2030-04-19', 
   '2030-04-21', '2030-05-01', '2030-06-20', '2030-09-07', '2030-10-12', 
   '2030-11-02', '2030-11-15', '2030-11-20', '2030-12-24', '2030-12-25', '2030-12-31'
@@ -28,11 +25,12 @@ export default function App() {
   const [dataAtual, setDataAtual] = useState(new Date()); 
   
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ id: '', colaborador_id: '', data_inicio: '', data_termino: '', observacao: '' });
+  // Adicionado 'tipo' ao formData
+  const [formData, setFormData] = useState({ id: '', colaborador_id: '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Férias' });
   
   const [isEquipaModalOpen, setIsEquipaModalOpen] = useState(false);
   const [novoColaborador, setNovoColaborador] = useState('');
-  const [novaEquipe, setNovaEquipe] = useState('Gestão'); // Inicia com o primeiro da lista
+  const [novaEquipe, setNovaEquipe] = useState('Gestão');
 
   useEffect(() => {
     carregarDados();
@@ -89,13 +87,13 @@ export default function App() {
       return {
         'Equipe': colab ? (colab.equipe || 'Outros') : 'Desconhecido',
         'Colaborador': colab ? colab.nome_completo : 'Desconhecido',
+        'Tipo': f.tipo || 'Férias', // Inclui o tipo no Excel
         'Data de Início': formatarDataBR(f.data_inicio),
         'Data de Término': formatarDataBR(f.data_termino),
         'Observação': f.observacao || ''
       };
     });
 
-    // Ordenação forçada no Excel para corresponder à tela
     dados.sort((a, b) => {
       if(a.Equipe !== b.Equipe) {
         const ordem = ['Gestão', 'Gestão Técnica de Contratos', 'Novos Negócios'];
@@ -111,17 +109,23 @@ export default function App() {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, `Férias ${ano}`);
-    worksheet['!cols'] = [{ wch: 30 }, { wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 40 }];
+    worksheet['!cols'] = [{ wch: 30 }, { wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 40 }];
     XLSX.writeFile(workbook, `Programacao_Ferias_Unimed_${ano}.xlsx`);
   }
 
   function abrirNovoCadastro() {
-    setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '' });
+    setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Férias' });
+    setIsModalOpen(true);
+  }
+
+  // Função nova específica para o Day Off
+  function abrirNovoDayOff() {
+    setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Happy Day' });
     setIsModalOpen(true);
   }
 
   function abrirEdicao(periodo: any) {
-    setFormData({ ...periodo });
+    setFormData({ ...periodo, tipo: periodo.tipo || 'Férias' });
     setIsModalOpen(true);
   }
 
@@ -131,18 +135,18 @@ export default function App() {
     
     if (formData.id) {
       await supabase.from('ferias').update({
-        colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao
+        colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao, tipo: formData.tipo
       }).eq('id', formData.id);
     } else {
       await supabase.from('ferias').insert([{
-        colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao
+        colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao, tipo: formData.tipo
       }]);
     }
     setIsModalOpen(false);
   }
 
   async function excluirFerias() {
-    if(confirm("Tem a certeza que deseja cancelar estas férias?")) {
+    if(confirm("Tem a certeza que deseja cancelar este registo?")) {
       await supabase.from('ferias').delete().eq('id', formData.id);
       setIsModalOpen(false);
     }
@@ -156,12 +160,11 @@ export default function App() {
   }
 
   async function excluirColaborador(id: string, nome: string) {
-    if(confirm(`Tem a certeza que deseja excluir ${nome}? ATENÇÃO: Todas as férias desta pessoa também serão eliminadas.`)) {
+    if(confirm(`Tem a certeza que deseja excluir ${nome}? ATENÇÃO: Todas as marcações desta pessoa também serão eliminadas.`)) {
       await supabase.from('colaboradores').delete().eq('id', id);
     }
   }
 
-  // Agrupa os colaboradores por equipa
   const colaboradoresPorEquipe = colaboradores.reduce((acc, colab) => {
     const eq = colab.equipe || 'Outros';
     if (!acc[eq]) acc[eq] = [];
@@ -169,13 +172,11 @@ export default function App() {
     return acc;
   }, {} as Record<string, any[]>);
 
-  // AQUI DEFINIMOS A ORDEM EXATA QUE QUEREMOS NA TELA (Ignora a ordem alfabética)
   const ordemDesejada = ['Gestão', 'Gestão Técnica de Contratos', 'Novos Negócios'];
-  
   const equipesOrdenadas = Object.keys(colaboradoresPorEquipe).sort((a, b) => {
     let posA = ordemDesejada.indexOf(a);
     let posB = ordemDesejada.indexOf(b);
-    if (posA === -1) posA = 999; // Se houver uma equipe nova não listada, vai para o final
+    if (posA === -1) posA = 999;
     if (posB === -1) posB = 999;
     return posA - posB;
   });
@@ -207,6 +208,12 @@ export default function App() {
             <button className="btn" onClick={() => setIsEquipaModalOpen(true)}>
               <Users size={18} /> Colaboradores
             </button>
+            
+            {/* NOVO BOTÃO DAY OFF COM ÍCONE DE CAFÉ/PAUSA */}
+            <button className="btn btn-secondary" onClick={abrirNovoDayOff}>
+              <Coffee size={18} /> Day Off
+            </button>
+            
             <button className="btn btn-primary" onClick={abrirNovoCadastro}>
               <Plus size={18} /> Nova Férias
             </button>
@@ -253,15 +260,28 @@ export default function App() {
                       const isFeriado = feriadosNacionais.includes(dataVerificada);
 
                       let cssClass = isHoje(dia) ? 'today-cell ' : '';
-                      if (periodo) cssClass += 'ferias-cell';
-                      else if (isFeriado) cssClass += 'holiday-cell';
-                      else if (isFimDeSemana) cssClass += 'weekend-cell';
+                      let cellTitle = '';
+
+                      if (periodo) {
+                        // Verifica se é Férias (verde) ou Day Off (laranja)
+                        if (periodo.tipo === 'Férias' || !periodo.tipo) {
+                          cssClass += 'ferias-cell';
+                        } else {
+                          cssClass += 'dayoff-cell';
+                        }
+                        cellTitle = `${periodo.tipo || 'Férias'} - Clique para editar`;
+                      } else if (isFeriado) {
+                        cssClass += 'holiday-cell';
+                        cellTitle = 'Feriado';
+                      } else if (isFimDeSemana) {
+                        cssClass += 'weekend-cell';
+                      }
 
                       return (
                         <td 
                           key={dia} 
                           className={cssClass}
-                          title={periodo ? 'Férias - Clique para editar' : (isFeriado ? 'Feriado' : '')}
+                          title={cellTitle}
                           onClick={() => periodo ? abrirEdicao(periodo) : null}
                         ></td>
                       );
@@ -282,7 +302,9 @@ export default function App() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">{formData.id ? 'Editar Férias' : 'Agendar Férias'}</h3>
+              <h3 className="modal-title">
+                {formData.id ? 'Editar Registo' : (formData.tipo === 'Férias' ? 'Agendar Férias' : 'Agendar Day Off')}
+              </h3>
               <button className="close-btn" onClick={() => setIsModalOpen(false)}><X size={24} /></button>
             </div>
             <form onSubmit={salvarFerias}>
@@ -292,6 +314,19 @@ export default function App() {
                   {colaboradores.map(c => <option key={c.id} value={c.id}>{c.nome_completo} - {c.equipe}</option>)}
                 </select>
               </div>
+
+              {/* SE FOR DAY OFF, MOSTRA O SELETOR DE CATEGORIA */}
+              {formData.tipo !== 'Férias' && (
+                <div className="form-group">
+                  <label className="form-label">Tipo de Day Off</label>
+                  <select className="form-control" value={formData.tipo} onChange={e => setFormData({...formData, tipo: e.target.value})} required>
+                    <option value="Happy Day">Happy Day</option>
+                    <option value="Banco de Horas">Banco de Horas</option>
+                    <option value="Outros">Outros</option>
+                  </select>
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: '15px' }}>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label">Início</label>
@@ -333,7 +368,6 @@ export default function App() {
                 onChange={e => setNovoColaborador(e.target.value)}
                 required
               />
-              {/* AS OPÇÕES DE ESCOLHA AGORA TÊM A ORDEM EXATA QUE PEDIU */}
               <select className="form-control" value={novaEquipe} onChange={e => setNovaEquipe(e.target.value)} style={{ width: '220px' }}>
                 <option value="Gestão">Gestão</option>
                 <option value="Gestão Técnica de Contratos">Gestão Técnica de Contratos</option>
