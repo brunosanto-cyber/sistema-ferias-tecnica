@@ -33,20 +33,17 @@ export default function App() {
 
   useEffect(() => {
     carregarDados();
-
     const subscription = supabase
       .channel('mudancas-db')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ferias' }, () => carregarDados())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'colaboradores' }, () => carregarDados())
       .subscribe();
-
     return () => { supabase.removeChannel(subscription); };
   }, []);
 
   async function carregarDados() {
     const resColab = await supabase.from('colaboradores').select('*').order('nome_completo');
     if (resColab.data) setColaboradores(resColab.data);
-
     const resFerias = await supabase.from('ferias').select('*');
     if (resFerias.data) setFerias(resFerias.data);
   }
@@ -80,7 +77,6 @@ export default function App() {
       const [y, m, d] = dataString.split('-');
       return `${d}/${m}/${y}`;
     }
-
     const dados = feriasDoAno.map(f => {
       const colab = colaboradores.find(c => c.id === f.colaborador_id);
       return {
@@ -92,7 +88,6 @@ export default function App() {
         'Observação': f.observacao || ''
       };
     });
-
     dados.sort((a, b) => {
       if(a.Equipe !== b.Equipe) {
         const ordem = ['Gestão', 'Gestão Técnica de Contratos', 'Novos Negócios'];
@@ -104,7 +99,6 @@ export default function App() {
       }
       return a.Colaborador.localeCompare(b.Colaborador);
     });
-
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, `Férias ${ano}`);
@@ -112,33 +106,17 @@ export default function App() {
     XLSX.writeFile(workbook, `Programacao_Ferias_Unimed_${ano}.xlsx`);
   }
 
-  function abrirNovoCadastro() {
-    setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Férias' });
-    setIsModalOpen(true);
-  }
-
-  function abrirNovoDayOff() {
-    setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Happy Day' });
-    setIsModalOpen(true);
-  }
-
-  function abrirEdicao(periodo: any) {
-    setFormData({ ...periodo, tipo: periodo.tipo || 'Férias' });
-    setIsModalOpen(true);
-  }
+  function abrirNovoCadastro() { setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Férias' }); setIsModalOpen(true); }
+  function abrirNovoDayOff() { setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Happy Day' }); setIsModalOpen(true); }
+  function abrirEdicao(periodo: any) { setFormData({ ...periodo, tipo: periodo.tipo || 'Férias' }); setIsModalOpen(true); }
 
   async function salvarFerias(e: React.FormEvent) {
     e.preventDefault();
     if (formData.data_inicio > formData.data_termino) return alert("A data de término não pode ser antes da data de início!");
-    
     if (formData.id) {
-      await supabase.from('ferias').update({
-        colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao, tipo: formData.tipo
-      }).eq('id', formData.id);
+      await supabase.from('ferias').update({ colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao, tipo: formData.tipo }).eq('id', formData.id);
     } else {
-      await supabase.from('ferias').insert([{
-        colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao, tipo: formData.tipo
-      }]);
+      await supabase.from('ferias').insert([{ colaborador_id: formData.colaborador_id, data_inicio: formData.data_inicio, data_termino: formData.data_termino, observacao: formData.observacao, tipo: formData.tipo }]);
     }
     setIsModalOpen(false);
   }
@@ -181,43 +159,53 @@ export default function App() {
 
   return (
     <div className="container">
-      {/* CABEÇALHO DIVIDIDO EM 3 BLOCOS */}
+      
+      {/* NOVO CABEÇALHO DIVIDIDO EM 2 LINHAS */}
       <div className="header">
         
-        {/* Bloco Esquerda */}
-        <div className="header-left">
-          <img src="/logo.png" alt="Logótipo Seguros Unimed" style={{ height: '45px', objectFit: 'contain' }} />
-          <h2 className="header-title">Gestão de Férias</h2>
-        </div>
-
-        {/* Bloco Central */}
-        <div className="header-center">
-          <button className="btn" onClick={() => mudarMes(-1)}><ChevronLeft size={18} /> Anterior</button>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '150px' }}>
-            <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--unimed-blue)', textAlign: 'center' }}>
-              {mesesNomes[mes]} {ano}
-            </span>
-            <button onClick={voltarParaHoje} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '11px', cursor: 'pointer', marginTop: '2px', textDecoration: 'underline' }}>
-              Ir para Hoje
+        {/* LINHA 1: Logo e Botões */}
+        <div className="header-top">
+          <div className="header-left">
+            <img src="/logo.png" alt="Logótipo Seguros Unimed" style={{ height: '52px', objectFit: 'contain' }} />
+            <h2 className="header-title">Gestão de Férias</h2>
+          </div>
+          
+          <div className="header-right">
+            <button className="btn" onClick={exportarExcel} title={`Baixar planilha de ${ano}`}>
+              <Download size={18} /> Excel
+            </button>
+            <button className="btn" onClick={() => setIsEquipaModalOpen(true)}>
+              <Users size={18} /> Colaboradores
+            </button>
+            <button className="btn btn-secondary" onClick={abrirNovoDayOff}>
+              <Coffee size={18} /> Day Off
+            </button>
+            <button className="btn btn-primary" onClick={abrirNovoCadastro}>
+              <Plus size={18} /> Nova Férias
             </button>
           </div>
-          <button className="btn" onClick={() => mudarMes(1)}>Próximo <ChevronRight size={18} /></button>
         </div>
-        
-        {/* Bloco Direita */}
-        <div className="header-right">
-          <button className="btn" onClick={exportarExcel} title={`Baixar planilha de ${ano}`}>
-            <Download size={18} /> Excel
-          </button>
-          <button className="btn" onClick={() => setIsEquipaModalOpen(true)}>
-            <Users size={18} /> Colaboradores
-          </button>
-          <button className="btn btn-secondary" onClick={abrirNovoDayOff}>
-            <Coffee size={18} /> Day Off
-          </button>
-          <button className="btn btn-primary" onClick={abrirNovoCadastro}>
-            <Plus size={18} /> Nova Férias
-          </button>
+
+        {/* LINHA 2: Seletor de Meses Elegante ao Centro */}
+        <div className="header-bottom">
+          <div className="month-nav">
+            <button className="btn" onClick={() => mudarMes(-1)} style={{ border: 'none', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <ChevronLeft size={18} /> Anterior
+            </button>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '180px' }}>
+              <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--unimed-blue)', textAlign: 'center' }}>
+                {mesesNomes[mes]} {ano}
+              </span>
+              <button onClick={voltarParaHoje} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', marginTop: '4px', textDecoration: 'underline' }}>
+                Ir para Hoje
+              </button>
+            </div>
+            
+            <button className="btn" onClick={() => mudarMes(1)} style={{ border: 'none', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              Próximo <ChevronRight size={18} />
+            </button>
+          </div>
         </div>
 
       </div>
@@ -243,14 +231,12 @@ export default function App() {
           <tbody>
             {equipesOrdenadas.map(equipe => (
               <React.Fragment key={equipe}>
-                
                 <tr>
                   <td className="colab-name" style={{ backgroundColor: '#e2e8f0', borderTop: '3px solid var(--unimed-blue)', borderBottom: '1px solid #cbd5e1', paddingTop: '10px', paddingBottom: '10px', zIndex: 15 }}>
                     {equipe}
                   </td>
                   <td colSpan={dias.length} style={{ backgroundColor: '#e2e8f0', borderTop: '3px solid var(--unimed-blue)', borderBottom: '1px solid #cbd5e1' }}></td>
                 </tr>
-                
                 {colaboradoresPorEquipe[equipe].map(colab => (
                   <tr key={colab.id}>
                     <td className="colab-name">{colab.nome_completo}</td>
@@ -290,7 +276,6 @@ export default function App() {
                 ))}
               </React.Fragment>
             ))}
-
             {colaboradores.length === 0 && (
               <tr><td colSpan={32} style={{ padding: '20px', textAlign: 'center' }}>Nenhum colaborador registado.</td></tr>
             )}
@@ -314,7 +299,6 @@ export default function App() {
                   {colaboradores.map(c => <option key={c.id} value={c.id}>{c.nome_completo} - {c.equipe}</option>)}
                 </select>
               </div>
-
               {formData.tipo !== 'Férias' && (
                 <div className="form-group">
                   <label className="form-label">Tipo de Day Off</label>
@@ -325,7 +309,6 @@ export default function App() {
                   </select>
                 </div>
               )}
-
               <div style={{ display: 'flex', gap: '15px' }}>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label">Início</label>
@@ -357,16 +340,8 @@ export default function App() {
               <h3 className="modal-title">Gerir Colaboradores</h3>
               <button className="close-btn" onClick={() => setIsEquipaModalOpen(false)}><X size={24} /></button>
             </div>
-            
             <form onSubmit={adicionarColaborador} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder="Nome do colaborador" 
-                value={novoColaborador}
-                onChange={e => setNovoColaborador(e.target.value)}
-                required
-              />
+              <input type="text" className="form-control" placeholder="Nome do colaborador" value={novoColaborador} onChange={e => setNovoColaborador(e.target.value)} required />
               <select className="form-control" value={novaEquipe} onChange={e => setNovaEquipe(e.target.value)} style={{ width: '220px' }}>
                 <option value="Gestão">Gestão</option>
                 <option value="Gestão Técnica de Contratos">Gestão Técnica de Contratos</option>
@@ -376,7 +351,6 @@ export default function App() {
                 <UserPlus size={18} /> Adicionar
               </button>
             </form>
-
             <div style={{ maxHeight: '350px', overflowY: 'auto', border: '1px solid #cbd5e1', borderRadius: '6px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <tbody>
@@ -387,12 +361,7 @@ export default function App() {
                         <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{c.equipe}</div>
                       </td>
                       <td style={{ padding: '8px 15px', textAlign: 'right', width: '60px' }}>
-                        <button 
-                          className="btn-danger" 
-                          style={{ padding: '6px', borderRadius: '4px', cursor: 'pointer', display: 'flex' }}
-                          onClick={() => excluirColaborador(c.id, c.nome_completo)}
-                          title="Excluir Colaborador"
-                        >
+                        <button className="btn-danger" style={{ padding: '6px', borderRadius: '4px', cursor: 'pointer', display: 'flex' }} onClick={() => excluirColaborador(c.id, c.nome_completo)} title="Excluir Colaborador">
                           <Trash2 size={16} />
                         </button>
                       </td>
