@@ -9,23 +9,19 @@ body {
   margin: 0; 
   padding: 15px; 
   color: #334155;
-  
-  /* NOVIDADE 1: Força o sistema a usar exatamente 100% da altura da tela */
   height: 100vh;          
   box-sizing: border-box; 
-  overflow: hidden; /* Trava a rolagem da página inteira (o scroll vai ficar só na tabela) */
+  overflow: hidden;
 }
 
 .container { 
   max-width: 98%; 
-  height: 100%; /* Preenche todo o espaço disponível criado acima */
+  height: 100%; 
   margin: 0 auto; 
   background: white; 
-  padding: 25px 25px 0 25px; /* Tiramos o padding de baixo para a tabela colar no fundo */
+  padding: 25px 25px 0 25px; 
   border-radius: 12px; 
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
-  
-  /* NOVIDADE 2: Transforma o container num Flexbox para a tabela poder "esticar" */
   display: flex;          
   flex-direction: column; 
   box-sizing: border-box;
@@ -36,7 +32,7 @@ body {
   flex-direction: column;
   gap: 20px;
   margin-bottom: 25px;
-  flex-shrink: 0; /* Garante que o cabeçalho nunca seja esmagado e fique sempre fixo */
+  flex-shrink: 0; 
 }
 
 .header-top {
@@ -78,16 +74,17 @@ body {
 .btn-danger:hover { background: #dc2626; }
 
 .tabela-container { 
-  overflow: auto; /* NOVIDADE 3: A barra de rolagem só existe aqui dentro! */
+  overflow: auto; 
   border: 1px solid #e2e8f0;
-  border-bottom: none; /* Deixa o fundo sem linha para encaixar melhor */
+  border-bottom: none; 
   border-radius: 8px 8px 0 0;
-  flex-grow: 1; /* Faz a tabela esticar e ocupar todo o ecrã restante */
+  flex-grow: 1; 
+  min-height: 0; /* <--- ESTA FOI A CORREÇÃO MÁGICA! Faz o scroll funcionar apenas na tabela */
 }
 
 .calendar-table { 
   width: 100%; 
-  border-collapse: separate; /* Necessário para manter os dias colados no topo */
+  border-collapse: separate; 
   border-spacing: 0;
   table-layout: fixed; 
 }
@@ -104,7 +101,7 @@ body {
   background: var(--unimed-blue); 
   font-weight: 600;
   color: white;
-  position: sticky; /* NOVIDADE 4: Mantém a barra dos dias presa no topo ao rolar para baixo */
+  position: sticky; 
   top: 0;
   z-index: 30; 
 }
@@ -114,7 +111,7 @@ body {
   font-weight: 600; 
   width: 220px; 
   padding-left: 12px !important;
-  position: sticky; /* NOVIDADE 5: Mantém os nomes presos à esquerda ao rolar para o lado */
+  position: sticky; 
   left: 0;
   background: white;
   color: var(--unimed-blue);
@@ -127,7 +124,7 @@ body {
 th.colab-name {
   background: var(--unimed-blue);
   color: white;
-  z-index: 40; /* Este canto (Nome Colaborador) é o mais alto, não se move nunca! */
+  z-index: 40; 
 }
 
 .ferias-cell { background-color: var(--unimed-green) !important; color: transparent !important; cursor: pointer; transition: opacity 0.2s; border-radius: 2px; }
