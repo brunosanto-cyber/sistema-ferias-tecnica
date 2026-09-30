@@ -25,7 +25,6 @@ export default function App() {
   const [dataAtual, setDataAtual] = useState(new Date()); 
   
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // Adicionado 'tipo' ao formData
   const [formData, setFormData] = useState({ id: '', colaborador_id: '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Férias' });
   
   const [isEquipaModalOpen, setIsEquipaModalOpen] = useState(false);
@@ -87,7 +86,7 @@ export default function App() {
       return {
         'Equipe': colab ? (colab.equipe || 'Outros') : 'Desconhecido',
         'Colaborador': colab ? colab.nome_completo : 'Desconhecido',
-        'Tipo': f.tipo || 'Férias', // Inclui o tipo no Excel
+        'Tipo': f.tipo || 'Férias', 
         'Data de Início': formatarDataBR(f.data_inicio),
         'Data de Término': formatarDataBR(f.data_termino),
         'Observação': f.observacao || ''
@@ -118,7 +117,6 @@ export default function App() {
     setIsModalOpen(true);
   }
 
-  // Função nova específica para o Day Off
   function abrirNovoDayOff() {
     setFormData({ id: '', colaborador_id: colaboradores[0]?.id || '', data_inicio: '', data_termino: '', observacao: '', tipo: 'Happy Day' });
     setIsModalOpen(true);
@@ -183,16 +181,20 @@ export default function App() {
 
   return (
     <div className="container">
+      {/* CABEÇALHO DIVIDIDO EM 3 BLOCOS */}
       <div className="header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        
+        {/* Bloco Esquerda */}
+        <div className="header-left">
           <img src="/logo.png" alt="Logótipo Seguros Unimed" style={{ height: '45px', objectFit: 'contain' }} />
           <h2 className="header-title">Gestão de Férias</h2>
         </div>
 
-        <div className="nav-mes">
+        {/* Bloco Central */}
+        <div className="header-center">
           <button className="btn" onClick={() => mudarMes(-1)}><ChevronLeft size={18} /> Anterior</button>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--unimed-blue)', minWidth: '150px', textAlign: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '150px' }}>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--unimed-blue)', textAlign: 'center' }}>
               {mesesNomes[mes]} {ano}
             </span>
             <button onClick={voltarParaHoje} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '11px', cursor: 'pointer', marginTop: '2px', textDecoration: 'underline' }}>
@@ -200,25 +202,24 @@ export default function App() {
             </button>
           </div>
           <button className="btn" onClick={() => mudarMes(1)}>Próximo <ChevronRight size={18} /></button>
-          
-          <div style={{ display: 'flex', gap: '10px', marginLeft: '15px' }}>
-            <button className="btn" onClick={exportarExcel} title={`Baixar planilha de ${ano}`}>
-              <Download size={18} /> Excel
-            </button>
-            <button className="btn" onClick={() => setIsEquipaModalOpen(true)}>
-              <Users size={18} /> Colaboradores
-            </button>
-            
-            {/* NOVO BOTÃO DAY OFF COM ÍCONE DE CAFÉ/PAUSA */}
-            <button className="btn btn-secondary" onClick={abrirNovoDayOff}>
-              <Coffee size={18} /> Day Off
-            </button>
-            
-            <button className="btn btn-primary" onClick={abrirNovoCadastro}>
-              <Plus size={18} /> Nova Férias
-            </button>
-          </div>
         </div>
+        
+        {/* Bloco Direita */}
+        <div className="header-right">
+          <button className="btn" onClick={exportarExcel} title={`Baixar planilha de ${ano}`}>
+            <Download size={18} /> Excel
+          </button>
+          <button className="btn" onClick={() => setIsEquipaModalOpen(true)}>
+            <Users size={18} /> Colaboradores
+          </button>
+          <button className="btn btn-secondary" onClick={abrirNovoDayOff}>
+            <Coffee size={18} /> Day Off
+          </button>
+          <button className="btn btn-primary" onClick={abrirNovoCadastro}>
+            <Plus size={18} /> Nova Férias
+          </button>
+        </div>
+
       </div>
 
       <div className="tabela-container">
@@ -263,7 +264,6 @@ export default function App() {
                       let cellTitle = '';
 
                       if (periodo) {
-                        // Verifica se é Férias (verde) ou Day Off (laranja)
                         if (periodo.tipo === 'Férias' || !periodo.tipo) {
                           cssClass += 'ferias-cell';
                         } else {
@@ -315,7 +315,6 @@ export default function App() {
                 </select>
               </div>
 
-              {/* SE FOR DAY OFF, MOSTRA O SELETOR DE CATEGORIA */}
               {formData.tipo !== 'Férias' && (
                 <div className="form-group">
                   <label className="form-label">Tipo de Day Off</label>
