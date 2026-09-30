@@ -3,33 +3,36 @@
   --unimed-green: #00995d; 
 }
 
-/* 1. RESET TOTAL: Remove qualquer margem cinzenta e fixa a tela em 100% reais */
+/* 1. RESET TOTAL: Sem qualquer margem ou espaço exterior */
 html, body {
   margin: 0;
-  padding: 0;
+  padding: 0; /* <-- O grande vilão das margens laterais foi removido aqui! */
   width: 100%;
   height: 100vh;
-  overflow: hidden; /* Trava a rolagem geral */
+  overflow: hidden; 
   box-sizing: border-box;
 }
 
 body { 
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; 
-  background-color: #ffffff; /* Fundo totalmente branco */
+  background-color: #ffffff; 
   color: #334155;
-  display: flex; /* Prepara o corpo para esticar o conteúdo */
+  display: flex; 
 }
 
+/* 2. CONTAINER PRINCIPAL: Agora é a própria tela, não um cartão flutuante */
 .container { 
-  flex: 1; /* Faz o sistema preencher 100% da largura e altura */
+  flex: 1; 
+  width: 100%;
   max-width: 100%; 
   margin: 0; 
-  padding: 25px; /* Espaço de respiro apenas por dentro */
+  padding: 20px 20px 0 20px; /* Dá espaço apenas por dentro para o texto não colar no vidro da tela */
   background: white; 
   display: flex;          
   flex-direction: column; 
   box-sizing: border-box;
-  min-height: 0; /* Garante que o corte no fundo não acontece */
+  min-height: 0; 
+  /* Removemos o box-shadow e border-radius que criavam a linha lateral */
 }
 
 .header { 
@@ -78,13 +81,13 @@ body {
 .btn-danger { background: #ef4444; color: white; border: none; }
 .btn-danger:hover { background: #dc2626; }
 
-/* 2. TABELA: Agora com o limite de fundo correto */
 .tabela-container { 
   flex: 1; 
   min-height: 0; 
   overflow: auto; 
   border: 1px solid #e2e8f0;
-  border-radius: 8px; /* Borda completa para fechar a caixa com elegância */
+  border-bottom: none; 
+  border-radius: 8px 8px 0 0;
 }
 
 .calendar-table { 
