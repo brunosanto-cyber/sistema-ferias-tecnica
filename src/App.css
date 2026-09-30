@@ -20,6 +20,7 @@ body {
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
 }
 
+/* NOVO CABEÇALHO DIVIDIDO EM 3 ÁREAS */
 .header { 
   display: flex; 
   justify-content: space-between; 
@@ -27,19 +28,19 @@ body {
   margin-bottom: 24px;
   border-bottom: 1px solid #e2e8f0;
   padding-bottom: 16px;
+  gap: 20px;
 }
+
+.header-left { display: flex; align-items: center; gap: 15px; }
+.header-center { display: flex; align-items: center; gap: 15px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
 
 .header-title {
   margin: 0;
   font-size: 1.5rem;
   color: var(--unimed-blue);
   font-weight: 700;
-}
-
-.nav-mes {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  white-space: nowrap; /* Garante que o título não parte para a linha de baixo! */
 }
 
 .btn { 
@@ -54,6 +55,7 @@ body {
   font-weight: 500;
   color: var(--unimed-blue);
   transition: all 0.2s;
+  white-space: nowrap; /* Garante que os botões não partem os textos */
 }
 
 .btn:hover { background: #f1f5f9; }
@@ -65,7 +67,6 @@ body {
 }
 .btn-primary:hover { background: #00824e; }
 
-/* NOVO BOTÃO SECUNDÁRIO PARA O DAY OFF */
 .btn-secondary { 
   background: var(--unimed-blue); 
   color: white; 
@@ -136,7 +137,6 @@ th.colab-name {
 }
 .ferias-cell:hover { opacity: 0.8; }
 
-/* NOVA COR PARA O DAY OFF (Laranja vibrante) */
 .dayoff-cell { 
   background-color: #f97316 !important; 
   color: transparent !important; 
