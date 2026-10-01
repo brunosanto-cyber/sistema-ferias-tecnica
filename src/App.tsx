@@ -159,15 +159,11 @@ export default function App() {
 
   return (
     <div className="container">
-      
-      {/* NOVO CABEÇALHO DIVIDIDO EM 2 LINHAS */}
       <div className="header">
-        
-        {/* LINHA 1: Logo e Botões */}
         <div className="header-top">
           <div className="header-left">
             <img src="/logo.png" alt="Logótipo Seguros Unimed" style={{ height: '52px', objectFit: 'contain' }} />
-            <h2 className="header-title">Gestão de Férias</h2>
+            <h2 className="header-title" translate="no">Gestão de Férias</h2>
           </div>
           
           <div className="header-right">
@@ -186,7 +182,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* LINHA 2: Seletor de Meses Elegante ao Centro */}
         <div className="header-bottom">
           <div className="month-nav">
             <button className="btn" onClick={() => mudarMes(-1)} style={{ border: 'none', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -194,7 +189,8 @@ export default function App() {
             </button>
             
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '180px' }}>
-              <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--unimed-blue)', textAlign: 'center' }}>
+              {/* O ESCUDO FOI COLOCADO AQUI: translate="no" */}
+              <span translate="no" style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--unimed-blue)', textAlign: 'center' }}>
                 {mesesNomes[mes]} {ano}
               </span>
               <button onClick={voltarParaHoje} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', marginTop: '4px', textDecoration: 'underline' }}>
@@ -207,14 +203,13 @@ export default function App() {
             </button>
           </div>
         </div>
-
       </div>
 
       <div className="tabela-container">
         <table className="calendar-table">
           <thead>
             <tr>
-              <th className="colab-name">Colaborador</th>
+              <th className="colab-name" translate="no">Colaborador</th>
               {dias.map(dia => {
                 const dataDate = new Date(ano, mes, dia);
                 const nomeDiaSemana = nomesDiasDaSemana[dataDate.getDay()];
@@ -222,13 +217,13 @@ export default function App() {
                 return (
                   <th key={dia} className={classeHoje}>
                     <div>{dia}</div>
-                    <div style={{ fontSize: '10px', marginTop: '3px', fontWeight: 'normal', opacity: 0.9 }}>{nomeDiaSemana}</div>
+                    <div style={{ fontSize: '10px', marginTop: '3px', fontWeight: 'normal', opacity: 0.9 }} translate="no">{nomeDiaSemana}</div>
                   </th>
                 );
               })}
             </tr>
           </thead>
-          <tbody>
+          <tbody translate="no">
             {equipesOrdenadas.map(equipe => (
               <React.Fragment key={equipe}>
                 <tr>
